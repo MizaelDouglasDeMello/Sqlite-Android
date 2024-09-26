@@ -12,6 +12,8 @@ import br.com.mizaeldouglas.sqlite_android.database.DatabaseHelper.Companion.ID_
 import br.com.mizaeldouglas.sqlite_android.database.DatabaseHelper.Companion.TABELA_PRODUTOS
 import br.com.mizaeldouglas.sqlite_android.database.DatabaseHelper.Companion.TITLE_PRODUTOS
 import br.com.mizaeldouglas.sqlite_android.databinding.ActivityMainBinding
+import br.com.mizaeldouglas.sqlite_android.model.produto.Produto
+import br.com.mizaeldouglas.sqlite_android.model.produto.ProdutoDAO
 
 class MainActivity : AppCompatActivity() {
 
@@ -51,58 +53,34 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun create() {
-
         val title = binding.editProduto.text.toString()
+        val produtoDAO = ProdutoDAO(this)
+        val produto = Produto(-1, title, "Descrição")
+        produtoDAO.create(produto)
 
-        val sql = "INSERT INTO $TABELA_PRODUTOS VALUES(NULL, '${title}', 'Descricao...');"
-        try {
-            bd.writableDatabase.execSQL(
-                sql
-            )
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
     }
 
     private fun findAll() {
-        val sql = "SELECT * FROM $TABELA_PRODUTOS"
-        val cursor = bd.readableDatabase.rawQuery(sql, null)
+        val produtoDAO = ProdutoDAO(this)
+        val listProduto = produtoDAO.findAll()
 
-
-        val indiceId = cursor.getColumnIndex(ID_PRODUTO)
-        val indiceTitle = cursor.getColumnIndex(TITLE_PRODUTOS)
-        val indiceDescicao = cursor.getColumnIndex(DESCRICAO_PRODUTOS)
-
-        while (cursor.moveToNext()){
-            val idProduto = cursor.getInt(indiceId)
-            val title = cursor.getString(indiceTitle)
-            val decricao = cursor.getString(indiceDescicao)
-            Log.i("findAll", "id: $idProduto - titulo: $title.")
+        if (listProduto.isNotEmpty()){
+            listProduto.forEach{ produto ->
+                Log.i("info_db", "${produto.idProduto} - ${produto.title}")
+            }
         }
     }
 
     private fun update() {
         val title = binding.editProduto.text.toString()
+        val produtoDAO = ProdutoDAO(this)
+        val produto = Produto(2, title, "Descrição")
+        produtoDAO.update(produto)
 
-        val sql = "UPDATE $TABELA_PRODUTOS SET $TITLE_PRODUTOS = '$title' WHERE $ID_PRODUTO = 1"
-        try {
-            bd.writableDatabase.execSQL(
-                sql
-            )
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
     }
 
     private fun delete() {
-        val sql = "DELETE FROM $TABELA_PRODUTOS WHERE $ID_PRODUTO = 1"
-
-        try {
-            bd.writableDatabase.execSQL(
-                sql
-            )
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        val produtoDAO = ProdutoDAO(this)
+        produtoDAO.delete(3)
     }
 }
